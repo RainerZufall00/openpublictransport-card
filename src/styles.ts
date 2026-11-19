@@ -59,69 +59,92 @@ export const hostStyles = css`
     --opt-font-weight-medium: var(--ha-font-weight-medium, 500);
   }
 
-  /* The departure board: gold on black, in a monospace face. */
+  /* The departure board, dark: white on near-black, with an amber accent for
+     what needs attention — the countdown, a changed platform, the header's
+     rule — in a bold condensed face that stays legible at a distance on a
+     wall-mounted tablet. The face is embedded (see fonts.ts). */
   :host([data-theme="dark"]) {
-    --opt-bg: #0a0a0a;
-    --opt-text: #ffd700;
-    --opt-text-secondary: #cccccc;
-    --opt-border: rgba(255, 215, 0, 0.15);
-    --opt-accent: var(--accent-color, #ffd700);
-    --opt-on-accent: #000000;
-    --opt-delay-red: #e53935;
-    --opt-delay-green: #43a047;
+    --opt-bg: #0b0f17;
+    --opt-text: #f5f7fa;
+    /* 7.6:1 on the board. */
+    --opt-text-secondary: #9aa4b2;
+    --opt-border: #1c2330;
+    /* card-mod can set --opt-board-accent to recolour the board. */
+    --opt-accent: var(--opt-board-accent, #ffc233);
+    --opt-on-accent: #0b0f17;
+    /* Accent as text: on the dark board the accent itself reads (12:1). */
+    --opt-accent-text: var(--opt-accent);
+    /* Red and green as text on the board: 7.5:1 and 11:1. As badge fills
+       they carry black figures. */
+    --opt-delay-red: #ff7a6b;
+    --opt-delay-green: #4ade80;
     --opt-delay-yellow: #fdd835;
-    /* Black, not white: white on this red measures 4.2:1 and on this green
-       3.3:1, below the 4.5:1 a badge's small figures need. The red itself stays,
-       since it is also text on the black card, where it measures 4.7:1. */
     --opt-on-delay: #000000;
-    /* The board's header: a band under a rule, in tracked capitals. */
-    --opt-header-bg: rgba(0, 0, 0, 0.4);
-    --opt-header-rule: var(--opt-border);
-    --opt-header-font-size: 14px;
+    /* The disruption band is a fill of its own: the text red above would
+       carry white at only 2.6:1. White on this one measures 4.6:1. */
+    --opt-banner-bg: #d92d20;
+    --opt-banner-text: #ffffff;
+    --opt-header-bg: transparent;
+    --opt-header-rule: var(--opt-accent);
+    --opt-header-rule-width: 2px;
+    --opt-header-font-size: 16px;
     --opt-header-font-weight: 700;
     --opt-header-line-height: normal;
     --opt-caps: uppercase;
     --opt-tracking: 1;
-    --opt-font-size-label: 11px;
-    --opt-font-size-badge: 13px;
-    --opt-row-hover: rgba(255, 215, 0, 0.05);
-    --opt-font-family: "Roboto Mono", "Courier New", monospace;
-    /* The faces this falls back to — Courier New, DejaVu Sans Mono — have no
-       medium, so 500 would drop to regular and a station name would lose the
-       bold it has always had here. */
+    --opt-font-size-label: 14px;
+    --opt-font-size-badge: 15px;
+    --opt-row-hover: rgba(255, 255, 255, 0.04);
+    --opt-font-family: "OPT Board", "Barlow Semi Condensed", "Roboto Condensed", "Arial Narrow", sans-serif;
+    /* The embedded face has 600 and 700 only; nothing on the board is
+       lighter than 600. */
     --opt-font-weight-medium: 600;
+    /* Board-only parts (boardStyles). */
+    --opt-platform-border: #3a4456;
+    --opt-countdown-bg: transparent;
+    --opt-countdown-text: var(--opt-accent);
+    --opt-chip-bg: #1c2330;
   }
 
-  /* The same board on white. */
+  /* The same board on white. Amber does not read as text on white (1.6:1),
+     so it is only ever a fill here — the countdown pill, a changed platform,
+     the rule — and its text role goes to a dark ochre. */
   :host([data-theme="light"]) {
     --opt-bg: #ffffff;
-    --opt-text: #1a1a1a;
-    --opt-text-secondary: #666666;
-    --opt-border: rgba(0, 0, 0, 0.12);
-    --opt-accent: var(--accent-color, #ffd700);
-    --opt-on-accent: #000000;
-    /* A shade darker than the dark board's red and green, which measure 4.2:1
-       and 3.3:1 against white text and white paper; these measure 5.0:1 and
-       5.1:1. */
-    --opt-delay-red: #d32f2f;
-    --opt-delay-green: #2e7d32;
-    /* A dark amber: the dark board's yellow measures 1.4:1 on white, where it
-       marks a departure's notices and a transfer's risk — invisible. This
-       measures 3.6:1, above the 3:1 an icon needs. */
+    --opt-text: #0f141c;
+    /* 6.0:1 on white, 5.5:1 on the header band. */
+    --opt-text-secondary: #5a6472;
+    --opt-border: #e3e7ec;
+    --opt-accent: var(--opt-board-accent, #ffc233);
+    --opt-on-accent: #0f141c;
+    /* 5.9:1 on white. */
+    --opt-accent-text: #8a5a00;
+    /* 6.0:1 and 5.0:1 on white, and with white figures as badge fills. */
+    --opt-delay-red: #c0261a;
+    --opt-delay-green: #15803d;
+    /* A dark amber for notice marks and transfer risk: 3.6:1, above the 3:1
+       an icon needs. */
     --opt-delay-yellow: #b07d00;
     --opt-on-delay: #ffffff;
-    --opt-header-bg: #f5f5f5;
-    --opt-header-rule: var(--opt-border);
-    --opt-header-font-size: 14px;
+    --opt-banner-bg: #d92d20;
+    --opt-banner-text: #ffffff;
+    --opt-header-bg: #f4f6f9;
+    --opt-header-rule: var(--opt-accent);
+    --opt-header-rule-width: 3px;
+    --opt-header-font-size: 16px;
     --opt-header-font-weight: 700;
     --opt-header-line-height: normal;
     --opt-caps: uppercase;
     --opt-tracking: 1;
-    --opt-font-size-label: 11px;
-    --opt-font-size-badge: 13px;
-    --opt-row-hover: rgba(0, 0, 0, 0.03);
-    --opt-font-family: "Roboto Mono", "Courier New", monospace;
+    --opt-font-size-label: 14px;
+    --opt-font-size-badge: 15px;
+    --opt-row-hover: rgba(15, 20, 28, 0.03);
+    --opt-font-family: "OPT Board", "Barlow Semi Condensed", "Roboto Condensed", "Arial Narrow", sans-serif;
     --opt-font-weight-medium: 600;
+    --opt-platform-border: #cbd2db;
+    --opt-countdown-bg: #f1f3f6;
+    --opt-countdown-text: #0f141c;
+    --opt-chip-bg: #f1f3f6;
   }
 `;
 
@@ -197,7 +220,7 @@ export const cardStyles = css`
     align-items: baseline;
     padding: 12px 16px;
     background: var(--opt-header-bg);
-    border-bottom: 1px solid var(--opt-header-rule);
+    border-bottom: var(--opt-header-rule-width, 1px) solid var(--opt-header-rule);
     font-size: var(--opt-header-font-size);
     font-weight: var(--opt-header-font-weight);
     line-height: var(--opt-header-line-height);
@@ -233,8 +256,8 @@ export const cardStyles = css`
 
   /* Disruption banner */
   .disruption-banner {
-    background: var(--opt-delay-red);
-    color: var(--opt-on-delay);
+    background: var(--opt-banner-bg, var(--opt-delay-red));
+    color: var(--opt-banner-text, var(--opt-on-delay));
     padding: 8px 16px;
     font-size: var(--ha-font-size-s, 12px);
     display: flex;
@@ -1147,5 +1170,400 @@ export const cardStyles = css`
     letter-spacing: 0.5px;
     opacity: 0.6;
     margin-bottom: 8px;
+  }
+`;
+
+/**
+ * The table layout on the board themes (dark, light, auto). Home Assistant's
+ * own theme keeps the table above; these rules only match the board's markup.
+ *
+ * Sizes follow the card's width rather than Home Assistant's type scale: a
+ * board is read from across the room, so on a tablet-wide card the times and
+ * destinations run 27–36px, and on a phone-wide one they shrink to what still
+ * fits. Each size is a clamp() of the board's own width (cqi); the variables
+ * hold the expression unevaluated, so it resolves against the .board
+ * container wherever it is used.
+ */
+export const boardStyles = css`
+  .board {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    font-variant-numeric: tabular-nums;
+    --b-gutter: clamp(16px, 3.3cqi, 24px);
+    --b-label: clamp(13px, 2.1cqi, 15px);
+    --b-sub: clamp(14px, 2.25cqi, 16px);
+    --b-time: clamp(20px, 4.2cqi, 30px);
+    --b-dest: clamp(18px, 3.75cqi, 27px);
+    --b-platform: clamp(18px, 3.35cqi, 24px);
+    --b-count: clamp(22px, 5cqi, 36px);
+    --b-badge: clamp(16px, 3.2cqi, 23px);
+    --b-station: clamp(20px, 4.45cqi, 32px);
+    --b-clock: clamp(22px, 5.3cqi, 38px);
+  }
+
+  /* Header: the line, when the board shows only one, then a label and the
+     station; the clock on the right. */
+  .b-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-shrink: 0;
+    padding: 16px var(--b-gutter) 14px;
+    background: var(--opt-header-bg);
+    border-bottom: var(--opt-header-rule-width, 2px) solid var(--opt-header-rule);
+  }
+
+  .b-header-main {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .b-header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .b-header-label {
+    font-size: var(--b-label);
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--opt-accent-text);
+  }
+
+  .b-station {
+    font-size: var(--b-station);
+    font-weight: 700;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .b-clock {
+    flex-shrink: 0;
+    font-size: var(--b-clock);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  /* Line badge. Provider colours come in as an inline style. */
+  .b-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .b-line openpublictransport-transport-icon {
+    --opt-icon-size: 22px;
+    color: var(--opt-text-secondary);
+  }
+
+  .b-line-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3em;
+    box-sizing: border-box;
+    min-width: 2.8em;
+    height: 1.65em;
+    padding: 0 0.35em;
+    border-radius: 8px;
+    font-size: var(--b-badge);
+    font-weight: 700;
+    white-space: nowrap;
+    background: var(--opt-accent);
+    color: var(--opt-on-accent);
+  }
+
+  /* The header's badge names the one line on the board, with its vehicle. */
+  .b-header .b-line-badge {
+    --opt-icon-size: 1.1em;
+    font-size: calc(var(--b-badge) * 1.3);
+    height: 1.85em;
+    padding: 0 0.45em;
+    border-radius: 10px;
+  }
+
+  .b-header .b-line-badge openpublictransport-transport-icon {
+    color: inherit;
+  }
+
+  /* Disruption band, at the board's reading size. */
+  .board button.disruption-banner {
+    gap: 10px;
+    padding: 12px var(--b-gutter);
+    font-size: clamp(15px, 2.5cqi, 18px);
+    font-weight: 600;
+  }
+
+  .board .disruption-banner ha-icon {
+    --opt-icon-size: 22px;
+  }
+
+  /* The table. Columns: time, line (several lines only), destination,
+     platform (optional), countdown. */
+  .b-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .b-table th,
+  .b-table td {
+    padding: 11px 7px;
+    vertical-align: middle;
+  }
+
+  .b-table th:first-child,
+  .b-table td:first-child {
+    padding-left: var(--b-gutter);
+  }
+
+  .b-table th:last-child,
+  .b-table td:last-child {
+    padding-right: var(--b-gutter);
+  }
+
+  .b-table thead th {
+    padding-top: 12px;
+    padding-bottom: 8px;
+    text-align: left;
+    font-size: var(--b-label);
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--opt-text-secondary);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--opt-bg);
+  }
+
+  .b-table thead th.b-col-platform {
+    text-align: center;
+  }
+
+  .b-table thead th.b-col-count {
+    text-align: right;
+  }
+
+  .b-table tbody tr {
+    border-top: 1px solid var(--opt-border);
+    transition: background-color 0.15s ease;
+  }
+
+  .b-table tbody tr:hover {
+    background: var(--opt-row-hover);
+  }
+
+  /* Time: the time that will happen, and under it why it differs from the
+     timetable — or that it does not. */
+  .b-time-cell {
+    white-space: nowrap;
+    line-height: 1.1;
+  }
+
+  .b-time {
+    display: block;
+    font-size: var(--b-time);
+    font-weight: 700;
+  }
+
+  .b-time.late {
+    color: var(--opt-delay-red);
+  }
+
+  .b-time-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--b-sub);
+    font-weight: 600;
+    color: var(--opt-text-secondary);
+  }
+
+  .b-planned {
+    text-decoration: line-through;
+  }
+
+  .b-delay {
+    font-weight: 700;
+    color: var(--opt-delay-red);
+  }
+
+  .b-on-time {
+    color: var(--opt-delay-green);
+  }
+
+  .b-line-cell {
+    white-space: nowrap;
+  }
+
+  /* Destination: takes what the other columns leave, and ellipsises. */
+  .b-dest-cell {
+    width: 100%;
+    max-width: 0;
+    line-height: 1.15;
+  }
+
+  .b-dest {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .b-arrow {
+    display: flex;
+    flex-shrink: 0;
+    color: var(--opt-text-secondary);
+  }
+
+  .b-arrow svg {
+    width: 0.8em;
+    height: 0.8em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .b-dest-name {
+    min-width: 0;
+    font-size: var(--b-dest);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .b-dest .b-arrow {
+    font-size: var(--b-dest);
+  }
+
+  .b-platform-note {
+    display: block;
+    margin-top: 2px;
+    padding-left: calc(var(--b-dest) * 0.8 + 10px);
+    font-size: var(--b-sub);
+    font-weight: 700;
+    color: var(--opt-accent-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* The notice mark, a round button beside the destination. */
+  .b-notice {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    /* 36px beside a tablet-sized destination, down to 28px on a phone. */
+    width: clamp(28px, calc(var(--b-dest) * 1.35), 36px);
+    height: clamp(28px, calc(var(--b-dest) * 1.35), 36px);
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--opt-chip-bg);
+    color: var(--opt-accent-text);
+    cursor: pointer;
+  }
+
+  .b-notice.disrupted {
+    color: var(--opt-delay-red);
+  }
+
+  .b-notice ha-icon {
+    --opt-icon-size: 22px;
+  }
+
+  .b-notice:focus-visible {
+    outline: 2px solid var(--opt-accent);
+    outline-offset: 2px;
+  }
+
+  /* Platform in a box; a changed one is filled with the accent. */
+  .b-platform-cell {
+    text-align: center;
+  }
+
+  .b-platform {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 2em;
+    height: 1.75em;
+    padding: 0 0.25em;
+    border: 2px solid var(--opt-platform-border);
+    border-radius: 8px;
+    font-size: var(--b-platform);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .b-platform.changed {
+    border-color: var(--opt-accent);
+    background: var(--opt-accent);
+    color: var(--opt-on-accent);
+  }
+
+  /* Countdown: the number large, its unit small. A departure within the
+     highlight window (highlight_minutes) is filled with the accent. */
+  .b-count-cell {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .b-count {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.15em;
+    padding: 1px 0.3em;
+    border-radius: 10px;
+    background: var(--opt-countdown-bg);
+    color: var(--opt-countdown-text);
+    font-size: var(--b-count);
+    font-weight: 700;
+    line-height: 1.15;
+  }
+
+  .b-count.soon {
+    background: var(--opt-accent);
+    color: var(--opt-on-accent);
+  }
+
+  .b-count-unit {
+    font-size: 0.5em;
+    font-weight: 600;
+  }
+
+  .board .card-empty {
+    font-size: var(--b-dest);
+  }
+
+  /* A narrow card keeps its columns: the vehicle icon goes first. */
+  @container (max-width: 420px) {
+    .b-line openpublictransport-transport-icon {
+      display: none;
+    }
+
+    .b-arrow {
+      display: none;
+    }
+
+    .b-platform-note {
+      padding-left: 0;
+    }
   }
 `;

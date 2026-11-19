@@ -93,8 +93,9 @@ export interface CardConfig {
   show_delay: boolean;
   show_realtime_indicator: boolean;
   /**
-   * The card's look. `dark` and `light` are the departure board, gold on
-   * black or ink on white, in a monospace face; `auto` picks one of the two by
+   * The card's look. `dark` and `light` are the departure board, white and
+   * amber on near-black or ink on white, in a bold condensed face (embedded,
+   * see fonts.ts); `auto` picks one of the two by
    * the dashboard's mode. `ha` takes colours and type from the Home Assistant
    * theme instead, so the card looks like the dashboard around it.
    */
@@ -107,6 +108,11 @@ export interface CardConfig {
   show_disruption_banner: boolean;
   /** A footer line saying how long ago the integration last fetched the data. */
   show_data_age: boolean;
+  /**
+   * Board themes, table layout: a departure this many minutes away or fewer
+   * gets its countdown filled with the accent colour. 0 turns it off.
+   */
+  highlight_minutes: number;
 }
 
 // Home Assistant types (minimal declarations for type safety)

@@ -5,7 +5,7 @@ import { localize } from "../localize";
 
 /**
  * The on-time mark. Drawn rather than typed, like the trip layout's arrow:
- * U+2713 is in neither Home Assistant's body font nor the boards' monospace
+ * U+2713 is in neither Home Assistant's body font nor the boards' own
  * faces, so it came from whatever fallback font the platform has — a hairline
  * at the badge's 10px, lighter than the figures on every other badge.
  */

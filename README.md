@@ -42,7 +42,19 @@ On Home Assistant before 2026.11, install it from **HACS** > **Frontend** the sa
 
 ### Table Layout (Abfahrtstafel)
 
-Classic departure board with time, line, destination, and platform columns.
+Classic departure board with time, line, destination, platform and countdown columns.
+
+On the board themes (`dark`, `light`, `auto`) the table is drawn for reading at a
+distance — a wall-mounted tablet, say: a bold condensed face (Barlow Semi
+Condensed, embedded in the card, no request to a font CDN), times and
+destinations at up to 30px, a large countdown on the right, and the platform in
+a box that fills with the accent colour when it has changed. Departures within
+`highlight_minutes` (default 9) get their countdown filled with the accent
+colour. Sizes follow the card's width, so the same card also fits a phone.
+
+When every departure on the board is the same line — a stop served by one line,
+or a `line_filter` naming one — the line is shown once in the header and the
+line column is dropped.
 
 ```yaml
 type: custom:openpublictransport-card
@@ -110,8 +122,9 @@ show_header: true
 | `show_realtime_indicator` | boolean | `true`  | Show green checkmark for on-time realtime                                   |
 | `show_notices`            | boolean | `true`  | Table: show the icon beside a destination with notices. Tap it to read them; disruptions are listed first |
 | `show_disruption_banner`  | boolean | `true`  | Table: show the red banner with the current disruptions. Tap it to read all of them |
+| `highlight_minutes`       | number  | `9`     | Table, board themes: fill the countdown of departures this many minutes away or fewer with the accent colour. `0` turns it off |
 | `show_data_age`           | boolean | `false` | Show how long ago the integration last fetched the data ("Fetched 20 seconds ago"). Needs integration 2026.11.0 or newer; on a multi-stop sensor this is its oldest source |
-| `theme`                   | string  | `auto`  | Theme: `dark`, `light`, `auto`, `ha`. `dark` and `light` are the departure board — gold on black or dark on white, in a monospace face — and `auto` picks one of the two by the dashboard's dark mode. `ha` takes colours and font from the Home Assistant theme, so the card looks like the cards around it. A card added from the card picker starts on `ha`; a card without the key shows `auto` |
+| `theme`                   | string  | `auto`  | Theme: `dark`, `light`, `auto`, `ha`. `dark` and `light` are the departure board — white with amber accents on near-black, or dark on white — in a bold condensed face, and `auto` picks one of the two by the dashboard's dark mode. `ha` takes colours and font from the Home Assistant theme, so the card looks like the cards around it. A card added from the card picker starts on `ha`; a card without the key shows `auto` |
 
 ## Line Colors
 
@@ -183,7 +196,7 @@ a strike. The trip sensor re-routes; the card just shows the result.
 ## Text size and font
 
 The card has no font options of its own: the face comes with the `theme`, a
-monospace one for the departure board (`dark`, `light`, `auto`) and Home
+bold condensed one for the departure board (`dark`, `light`, `auto`) and Home
 Assistant's own for `ha`. Everything below works through
 [card-mod](https://github.com/thomasloven/lovelace-card-mod), which has to be
 installed separately.
@@ -218,13 +231,15 @@ The element to name is the one your layout uses:
 
 | Layout | Classes |
 |--------|---------|
-| `table` | `.departure-table td`, `.departure-table thead th`, `.time-departure` (the time; `.time-planned` still matches), `.time-countdown` |
+| `table` (`ha` theme) | `.departure-table td`, `.departure-table thead th`, `.time-departure` (the time; `.time-planned` still matches), `.time-countdown` |
+| `table` (board themes) | `.b-time`, `.b-dest-name`, `.b-count`, `.b-platform`, `.b-line-badge`, `.b-station`, `.b-clock`, `.b-table thead th` — or set the size variables on `.board`: `--b-time`, `--b-dest`, `--b-count`, `--b-platform`, `--b-badge`, `--b-station`, `--b-clock`, `--b-label`, `--b-sub` |
 | `next` | `.next-countdown`, `.next-destination`, `.next-line-badge`, `.next-time`, `.next-station` |
 | `trip` | `.trip-header`, `.leg-station`, `.leg-details`, `.alt-journey` |
 
 Colors need no card-mod — the card reads `--opt-text`, `--opt-text-secondary`,
 `--opt-accent`, `--opt-border` and the three `--opt-delay-*` variables, and
-`theme: ha` makes it follow the dashboard theme on its own.
+`theme: ha` makes it follow the dashboard theme on its own. The board's amber
+accent is `--opt-board-accent`.
 
 ## Filters and the trip layout
 

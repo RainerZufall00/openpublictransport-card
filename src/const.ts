@@ -15,6 +15,7 @@ export const DEFAULT_CONFIG: Omit<CardConfig, "entity"> = {
   show_notices: true,
   show_disruption_banner: true,
   show_data_age: false,
+  highlight_minutes: 9,
 };
 
 export const TRANSPORT_ICONS: Record<string, string> = {

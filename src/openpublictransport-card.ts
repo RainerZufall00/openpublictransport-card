@@ -6,12 +6,15 @@ import { CARD_VERSION, DEFAULT_CONFIG } from "./const";
 import { localize } from "./localize";
 import { minutesUntil, formatAge } from "./format";
 import { isOptSensor, getOptEntities, detectModel, layoutForModel } from "./detect";
+import { ensureBoardFonts } from "./fonts";
 
 import "./layouts/table";
 import "./layouts/compact";
 import "./layouts/trip";
 import "./layouts/next";
 import "./editor";
+
+ensureBoardFonts();
 
 console.info(
   `%c OPENPUBLICTRANSPORT-CARD %c v${CARD_VERSION} `,

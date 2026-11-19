@@ -1,6 +1,6 @@
 import { LitElement, html, nothing } from "lit";
 import { customElement, property, state, query } from "lit/decorators.js";
-import { cardStyles } from "../styles";
+import { cardStyles, boardStyles } from "../styles";
 import { Departure, CardConfig, HomeAssistant } from "../types";
 import { localize } from "../localize";
 import { formatCountdown } from "../format";
@@ -9,9 +9,14 @@ import "../components/delay-badge";
 import "../components/info-dialog";
 import type { InfoDialog } from "../components/info-dialog";
 
+/** The board's direction mark, drawn so it takes the destination's colour. */
+const ARROW = html`<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+  <path d="M5 12h14M13 6l6 6-6 6" />
+</svg>`;
+
 @customElement("openpublictransport-table-layout")
 export class TableLayout extends LitElement {
-  static styles = cardStyles;
+  static styles = [cardStyles, boardStyles];
 
   @property({ attribute: false }) hass!: HomeAssistant;
   @property({ attribute: false }) config!: CardConfig;
@@ -128,6 +133,20 @@ export class TableLayout extends LitElement {
     const routine = dep.notices.filter((n) => !disruptions.includes(n));
     const disrupted = disruptions.length > 0;
     const heading = localize(lang, "notices_for", { line: dep.line, destination: dep.destination });
+    const icon = disrupted ? "mdi:alert-circle-outline" : "mdi:information-outline";
+    if (this._board) {
+      return html`
+        <button
+          class="b-notice ${disrupted ? "disrupted" : ""}"
+          aria-haspopup="dialog"
+          aria-label=${heading}
+          title=${dep.notices.join(", ")}
+          @click=${() => this._openDialog(heading, disruptions, routine)}
+        >
+          <ha-icon icon=${icon}></ha-icon>
+        </button>
+      `;
+    }
     return html`
       <button
         class="notice-button"
@@ -138,7 +157,7 @@ export class TableLayout extends LitElement {
       >
         <ha-icon
           class="notice-icon ${disrupted ? "" : "notice-info"}"
-          icon=${disrupted ? "mdi:alert-circle-outline" : "mdi:information-outline"}
+          icon=${icon}
         ></ha-icon>
       </button>
     `;
@@ -211,8 +230,202 @@ export class TableLayout extends LitElement {
     `;
   }
 
+  /**
+   * The board themes (dark, light, auto) draw the table as a departure board
+   * for reading at a distance; Home Assistant's own theme keeps the compact
+   * table that matches the cards around it.
+   */
+  private get _board(): boolean {
+    return this.config.theme !== "ha";
+  }
+
+  private _badgeStyle(dep: Departure): string {
+    return dep.line_color
+      ? `background:${dep.line_color};color:${dep.line_text_color || "#000"}`
+      : "";
+  }
+
+  /** The board's clock: hours and minutes. The card redraws every ten seconds,
+   * so seconds would only ever jump. */
+  private _getBoardTime(): string {
+    return new Date().toLocaleTimeString(this.hass?.language || "de-DE", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  /** The countdown as a large figure and a small unit: "5" "min", "1:05" "h". */
+  private _countdownParts(mins: number): { value: string; unit: string } {
+    const lang = this.hass.language;
+    if (mins <= 0) return { value: localize(lang, "now"), unit: "" };
+    if (mins < 60) return { value: String(mins), unit: localize(lang, "min_unit") };
+    const h = Math.floor(mins / 60);
+    const min = String(mins % 60).padStart(2, "0");
+    return { value: `${h}:${min}`, unit: "h" };
+  }
+
+  /**
+   * The line the board shows, when every departure on it is the same line —
+   * a stop served by one line, or a line filter naming one. The header then
+   * carries the line once and the line column is dropped. Without a header
+   * there is nowhere to name it, so the column stays.
+   */
+  private _singleLine(): Departure | undefined {
+    if (!this.config.show_header || this.departures.length === 0) return undefined;
+    const first = this.departures[0];
+    return this.departures.every((d) => d.line === first.line) ? first : undefined;
+  }
+
+  private _renderBoardHeader(single: Departure | undefined) {
+    if (!this.config.show_header) return nothing;
+    const lang = this.hass.language;
+    return html`
+      <div class="b-header">
+        <div class="b-header-main">
+          ${single
+            ? html`<span class="b-line-badge" style=${this._badgeStyle(single)}>
+                <openpublictransport-transport-icon
+                  transport-type=${single.transportation_type}
+                ></openpublictransport-transport-icon>
+                ${single.line}
+              </span>`
+            : nothing}
+          <div class="b-header-text">
+            <span class="b-header-label">${localize(lang, "departures_heading")}</span>
+            <span class="b-station">${this.stationName || localize(lang, "departures_heading")}</span>
+          </div>
+        </div>
+        <span class="b-clock">${this._getBoardTime()}</span>
+      </div>
+    `;
+  }
+
+  private _renderBoardTime(dep: Departure) {
+    const lang = this.hass.language;
+    const time = this._departureTime(dep);
+    const late = this.config.show_delay && dep.delay > 0;
+    let sub: unknown = nothing;
+    if (late) {
+      const planned = dep.planned_time && dep.planned_time !== time ? dep.planned_time : "";
+      sub = html`<span class="b-time-sub"
+        >${planned ? html`<span class="b-planned">${planned}</span> ` : nothing}<span class="b-delay"
+          >+${dep.delay}</span
+        ></span
+      >`;
+    } else if (
+      this.config.show_delay &&
+      this.config.show_realtime_indicator &&
+      dep.delay === 0 &&
+      dep.is_realtime
+    ) {
+      sub = html`<span class="b-time-sub b-on-time">${localize(lang, "on_time")}</span>`;
+    }
+    return html`
+      <td class="b-time-cell">
+        <span class="b-time time-departure ${late ? "late" : ""}">${time}</span>
+        ${sub}
+      </td>
+    `;
+  }
+
+  private _renderBoardRow(dep: Departure, single: boolean) {
+    const lang = this.hass.language;
+    const showPlatform = this.config.show_platform;
+    const changed = Boolean(dep.platform_changed && dep.planned_platform);
+    const mins = dep.minutes_until_departure;
+    const count = this._countdownParts(mins);
+    const highlight = this.config.highlight_minutes ?? 9;
+    const soon = highlight > 0 && mins <= highlight;
+    return html`
+      <tr>
+        ${this._renderBoardTime(dep)}
+        ${single
+          ? nothing
+          : html`<td class="b-line-cell">
+              <span class="b-line">
+                <openpublictransport-transport-icon
+                  transport-type=${dep.transportation_type}
+                ></openpublictransport-transport-icon>
+                <span class="b-line-badge" style=${this._badgeStyle(dep)}>${dep.line}</span>
+              </span>
+            </td>`}
+        <td class="b-dest-cell">
+          <span class="b-dest">
+            <span class="b-arrow">${ARROW}</span>
+            <span class="b-dest-name">${dep.destination}</span>
+            ${this._renderNotices(dep)}
+          </span>
+          ${changed && showPlatform
+            ? html`<span class="b-platform-note"
+                >${localize(lang, "platform_change", { new: dep.platform, old: dep.planned_platform! })}</span
+              >`
+            : nothing}
+        </td>
+        ${showPlatform
+          ? html`<td class="b-platform-cell">
+              ${dep.platform
+                ? html`<span class="b-platform ${changed ? "changed" : ""}">${dep.platform}</span>`
+                : nothing}
+            </td>`
+          : nothing}
+        <td class="b-count-cell">
+          <span class="b-count ${soon ? "soon" : ""}"
+            ><span>${count.value}</span>${count.unit
+              ? html`<span class="b-count-unit">${count.unit}</span>`
+              : nothing}</span
+          >
+        </td>
+      </tr>
+    `;
+  }
+
+  private _renderBoard(displayDepartures: Departure[]) {
+    const lang = this.hass.language;
+    const single = this._singleLine();
+
+    if (displayDepartures.length === 0) {
+      return html`
+        <div class="board">
+          ${this._renderBoardHeader(undefined)}
+          <div class="card-empty">${localize(lang, "no_departures")}</div>
+        </div>
+      `;
+    }
+
+    return html`
+      <div class="board">
+        ${this._renderBoardHeader(single)}
+        ${this._renderDisruptionBanner()}
+        <div class="card-content">
+          <table class="b-table">
+            <thead>
+              <tr>
+                <th>${localize(lang, "time")}</th>
+                ${single ? nothing : html`<th>${localize(lang, "line")}</th>`}
+                <th>${localize(lang, single ? "direction" : "destination")}</th>
+                ${this.config.show_platform
+                  ? html`<th class="b-col-platform">
+                      <span class="label-long">${localize(lang, "track")}</span>
+                      <span class="label-short">${localize(lang, "platform")}</span>
+                    </th>`
+                  : nothing}
+                <th class="b-col-count">${localize(lang, "countdown_heading")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${displayDepartures.map((dep) => this._renderBoardRow(dep, Boolean(single)))}
+            </tbody>
+          </table>
+        </div>
+        ${this._renderDialog()}
+      </div>
+    `;
+  }
+
   protected render() {
     const displayDepartures = this.departures.slice(0, this.config.max_departures);
+
+    if (this._board) return this._renderBoard(displayDepartures);
 
     if (displayDepartures.length === 0) {
       return html`

@@ -115,6 +115,14 @@ export class OpenpublictransportCardEditor extends LitElement {
     this._fireConfigChanged();
   }
 
+  private _highlightChanged(ev: Event): void {
+    if (!this._config) return;
+    const value = parseInt((ev.target as HTMLInputElement).value, 10);
+    if (isNaN(value) || value < 0) return;
+    this._config = { ...this._config, highlight_minutes: value };
+    this._fireConfigChanged();
+  }
+
   private _toggleChanged(configKey: keyof CardConfig): (ev: CustomEvent) => void {
     return (ev: CustomEvent) => {
       if (!this._config) return;
@@ -176,6 +184,22 @@ export class OpenpublictransportCardEditor extends LitElement {
             @change=${this._maxDeparturesChanged}
           ></ha-textfield>
         </div>
+
+        ${this._config.layout === "table" && this._config.theme !== "ha"
+          ? html`
+              <div class="config-row">
+                <label>${localize(lang, "highlight_minutes")}</label>
+                <ha-textfield
+                  type="number"
+                  .value=${String(this._config.highlight_minutes ?? 9)}
+                  min="0"
+                  max="60"
+                  helper=${localize(lang, "highlight_minutes_hint")}
+                  @change=${this._highlightChanged}
+                ></ha-textfield>
+              </div>
+            `
+          : ""}
 
         <div class="section-title">${localize(lang, "display_options")}</div>
 

@@ -11,6 +11,20 @@ A custom Home Assistant Lovelace card for displaying public transport departures
 
 ## Installation
 
+### This fork (HACS custom repository)
+
+This fork carries the redesigned departure board. To install it with HACS:
+
+1. If the original card is installed, remove it first in **HACS** (⋮ → **Remove**):
+   both install to the same folder.
+2. **HACS** → ⋮ → **Custom repositories** → Repository
+   `https://github.com/rainerzufall00/openpublictransport-card`, Type **Dashboard**
+   (called **Lovelace** or **Plugin** in older HACS versions) → **Add**.
+3. Search for **OpenPublicTransport Card (Tafel)**, click **Download** and reload the browser.
+
+The fork has no releases, so HACS installs from the `main` branch and offers an
+update whenever `main` changes.
+
 ### Marketplace (Recommended)
 
 1. Open **Settings** > **Marketplace** (Home Assistant 2026.11 or newer).
